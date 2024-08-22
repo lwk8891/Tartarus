@@ -30,14 +30,15 @@ file_dir = os.path.dirname(os.path.realpath(__file__))
 
 _mcf = pd.read_csv(os.path.join(file_dir, 'data/mcf.csv'))
 _pains = pd.read_csv(os.path.join(file_dir, 'data/wehi_pains.csv'), names=['smarts', 'names'])
-_filters = [Chem.MolFromSmarts(x) for x in _mcf.append(_pains, sort=True)['smarts'].values]
+_filters = [Chem.MolFromSmarts(x) for x in pd.concat([_mcf, _pains], sort=True)['smarts'].values] # Revision because pandas removed append function
 
 
-inf = open(os.path.join(file_dir, 'data/pains.txt'), "r")
-sub_strct = [ line.rstrip().split(" ") for line in inf ]
-smarts = [ line[0] for line in sub_strct]
-desc = [ line[1] for line in sub_strct]
-dic = dict(zip(smarts, desc))
+with open(os.path.join(file_dir, 'data/pains.txt'), "r", encoding = 'utf-8') as inf: # Revision of encoding: Windows raises cp949 encoding error
+    lines = inf.readlines()
+    sub_strct = [ line.rstrip().split(" ") for line in lines ]
+    smarts = [ line[0] for line in sub_strct]
+    desc = [ line[1] for line in sub_strct]
+    dic = dict(zip(smarts, desc))
 
 
 def lipinski_filter(smiles):
